@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YPF Downstream — Agentforce Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+:root {
+  --sf-navy: #032D60;
+  --sf-blue: #0070D2;
+  --sf-sky: #00A1E0;
+  --sf-mid: #1B4F8A;
+  --success: #287d3d;
+  --warning: #b95000;
+  --white: #ffffff;
+  --light-gray: #F4F6F9;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--light-gray);color:#1a1a1a;font-size:15px}
+
+/* HEADER */
+.sf-header{background:var(--sf-navy);position:sticky;top:0;z-index:1000;padding:0 1.5rem}
+.sf-header-inner{display:flex;align-items:center;justify-content:space-between;height:56px;max-width:1200px;margin:0 auto}
+.sf-logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+.sf-logo-cloud{background:var(--sf-sky);color:#fff;border-radius:8px;padding:4px 8px;font-weight:700;font-size:13px;letter-spacing:-.3px}
+.sf-logo-text{color:#fff;font-weight:600;font-size:13px;opacity:.85}
+.sf-site-title{color:rgba(255,255,255,.7);font-size:12px;font-weight:400}
+
+/* NAV TABS */
+.sf-nav{background:var(--sf-navy);border-top:1px solid rgba(255,255,255,.1)}
+.sf-nav-inner{display:flex;max-width:1200px;margin:0 auto}
+.sf-tab-btn{background:none;border:none;color:rgba(255,255,255,.65);padding:.75rem 1.25rem;font-size:14px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;font-family:'Inter',sans-serif}
+.sf-tab-btn:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sf-tab-btn.active{color:#fff;border-bottom-color:var(--sf-sky)}
+@media(max-width:600px){.sf-tab-btn{padding:.65rem .75rem;font-size:13px}}
+
+/* CONTENT */
+.tab-panel{display:none;opacity:0;transition:opacity .3s ease}
+.tab-panel.active{display:block;animation:fadeIn .3s forwards}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.tab-panel.active{animation:none;opacity:1}}
+.content-wrap{max-width:1200px;margin:0 auto;padding:2rem 1.5rem}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#032D60 0%,#1B4F8A 50%,#0070AE 100%);padding:4rem 2rem;text-align:center;color:#fff}
+.hero h1{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;margin-bottom:.75rem;line-height:1.2}
+.hero p{font-size:clamp(1rem,2.5vw,1.2rem);opacity:.85;max-width:680px;margin:0 auto 2rem;font-weight:300}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.25rem;max-width:900px;margin:0 auto 2rem}
+.kpi-card{background:rgba(255,255,255,.12);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:1.5rem;text-align:center}
+.kpi-icon{font-size:2rem;margin-bottom:.5rem;display:block}
+.kpi-metric{font-size:1rem;font-weight:700;margin-bottom:.35rem}
+.kpi-desc{font-size:.8rem;opacity:.8;font-weight:300;line-height:1.4}
+.hero-cta{background:var(--sf-sky);color:#fff;border:none;padding:.75rem 2rem;border-radius:6px;font-size:1rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .2s}
+.hero-cta:hover{background:#0091cc}
+
+/* SECTION HEADINGS */
+.section-title{font-size:1.4rem;font-weight:700;color:var(--sf-navy);margin-bottom:1.5rem}
+
+/* TAB 2 — CHALLENGES */
+.challenges-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:768px){.challenges-grid{grid-template-columns:1fr}}
+.challenge-label{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--warning);margin-bottom:.35rem}
+.solution-label{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sf-blue);margin-bottom:.35rem}
+.accordion-button{font-weight:600;font-size:.9rem;color:var(--sf-navy)}
+.accordion-button:not(.collapsed){background:#fff4ee;color:var(--warning);box-shadow:none}
+.accordion-button:focus{box-shadow:none}
+.accordion-item{border:1px solid #f0d4c0;margin-bottom:.5rem;border-radius:8px!important;overflow:hidden}
+.solution-card{background:#fff;border:1px solid #c9e3f5;border-radius:8px;padding:1.25rem;height:100%}
+.solution-card p{font-size:.875rem;color:#444;line-height:1.6;margin:0}
+.solutions-col{display:flex;flex-direction:column;gap:.5rem}
+
+/* TAB 3 — ARCHITECTURE */
+.arch-diagram{background:#fff;border-radius:12px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.arch-layer{margin-bottom:1rem}
+.layer-label{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;padding:.2rem .6rem;border-radius:4px;display:inline-block}
+.layer-boxes{display:flex;flex-wrap:wrap;gap:.5rem}
+.arch-box{border-radius:6px;padding:.5rem .9rem;font-size:.8rem;font-weight:600;text-align:center;white-space:nowrap}
+
+/* Layer colors */
+.layer-channels .layer-label{background:#e8f3fb;color:var(--sf-blue)}
+.layer-channels .arch-box{background:#e8f3fb;border:1px solid #b8d9f0;color:var(--sf-blue)}
+.layer-agents .layer-label{background:#e8f5ee;color:var(--success)}
+.layer-agents .arch-box{background:#e8f5ee;border:1px solid #a8d5b8;color:#1a5c2e;cursor:pointer;transition:all .2s}
+.layer-agents .arch-box:hover{background:#287d3d;color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(40,125,61,.3)}
+.layer-trust .layer-label{background:#fff8e1;color:#7d5300}
+.trust-bar{background:#fff8e1;border:2px solid #f0c845;border-radius:6px;padding:.6rem 1rem;font-size:.8rem;font-weight:600;color:#7d5300;text-align:center;width:100%}
+.layer-platform .layer-label{background:#ede7f6;color:#4527a0}
+.layer-platform .arch-box{background:#ede7f6;border:1px solid #c5b0e8;color:#4527a0}
+.layer-external .layer-label{background:#f0f0f0;color:#444}
+.layer-external .arch-box{background:#f0f0f0;border:1px solid #ccc;color:#444}
+
+.risk-callout{background:#fff4ee;border-left:4px solid var(--warning);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin-top:1.25rem;font-size:.875rem;color:#7d3800}
+.risk-callout strong{color:var(--warning)}
+
+/* TAB 4 — NEXT STEPS */
+.timeline{position:relative;padding-left:2rem}
+.timeline::before{content:'';position:absolute;left:.6rem;top:0;bottom:0;width:2px;background:#dce3ed}
+.timeline-step{position:relative;margin-bottom:2rem;opacity:0;transform:translateX(-12px);transition:opacity .5s ease,transform .5s ease}
+.timeline-step.visible{opacity:1;transform:translateX(0)}
+@media(prefers-reduced-motion:reduce){.timeline-step{opacity:1;transform:none}}
+.timeline-dot{position:absolute;left:-1.7rem;top:.25rem;width:14px;height:14px;border-radius:50%;background:var(--sf-blue);border:3px solid #fff;box-shadow:0 0 0 2px var(--sf-blue)}
+.timeline-step h5{font-size:1rem;font-weight:700;color:var(--sf-navy);margin-bottom:.4rem}
+.timeline-step p{font-size:.875rem;color:#555;line-height:1.6;margin:0}
+.timeline-card{background:#fff;border-radius:8px;padding:1.25rem 1.25rem 1.25rem 1.5rem;border:1px solid #dce3ed;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--sf-blue);color:#fff;font-size:.7rem;font-weight:700;margin-right:.5rem;flex-shrink:0}
+
+.cta-section{background:linear-gradient(135deg,var(--sf-navy),var(--sf-mid));border-radius:12px;padding:2.5rem;text-align:center;color:#fff;margin-top:2rem}
+.cta-btn{background:var(--sf-sky);color:#fff;border:none;padding:.85rem 2rem;border-radius:6px;font-size:1rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:background .2s;margin-bottom:1rem}
+.cta-btn:hover{background:#0091cc}
+.cta-sub{font-size:.85rem;opacity:.75;margin-bottom:.5rem}
+.cta-close{font-size:1rem;font-weight:600;opacity:.9;font-style:italic}
+
+/* TAB 5 — RETAIL MEDIA FLOW */
+.flow-phase{margin-bottom:2rem}
+.flow-phase-title{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.3rem .8rem;border-radius:4px;display:inline-block;margin-bottom:1rem}
+.flow-phase-title.venta{background:#e8f3fb;color:var(--sf-blue)}
+.flow-phase-title.medicion{background:#e8f5ee;color:var(--success)}
+.flow-steps{display:grid;gap:.75rem}
+.flow-step{display:grid;grid-template-columns:28px 1fr auto;gap:.75rem;align-items:start;background:#fff;border-radius:8px;padding:1rem 1.1rem;border:1px solid #dce3ed;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.flow-step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;flex-shrink:0;margin-top:2px}
+.flow-step-num.blue{background:var(--sf-blue);color:#fff}
+.flow-step-num.green{background:var(--success);color:#fff}
+.flow-step-body{}
+.flow-step-title{font-weight:700;font-size:.9rem;color:var(--sf-navy);margin-bottom:.25rem}
+.flow-step-desc{font-size:.82rem;color:#555;line-height:1.5;margin:0}
+.flow-step-tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.5rem}
+.tag{font-size:.68rem;font-weight:600;padding:.15rem .45rem;border-radius:3px;white-space:nowrap}
+.tag-sf{background:#e8f3fb;color:var(--sf-blue)}
+.tag-ext{background:#f0f0f0;color:#444}
+.tag-agent{background:#e8f5ee;color:var(--success)}
+.tag-warn{background:#fff4ee;color:var(--warning)}
+.agent-pill{font-size:.72rem;font-weight:700;padding:.2rem .55rem;border-radius:12px;white-space:nowrap;flex-shrink:0;align-self:start;margin-top:2px}
+.agent-pill.auto{background:#e8f5ee;color:var(--success);border:1px solid #a8d5b8}
+.agent-pill.hitl{background:#fff4ee;color:var(--warning);border:1px solid #f0c497}
+.agent-pill.aug{background:#ede7f6;color:#4527a0;border:1px solid #c5b0e8}
+.flow-connector{text-align:center;color:#aaa;font-size:1.1rem;margin:-.2rem 0}
+.systems-bar{background:#fff;border-radius:8px;padding:1rem 1.25rem;border:1px solid #dce3ed;margin-top:1.5rem}
+.systems-bar-title{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:.6rem}
+.systems-row{display:flex;flex-wrap:wrap;gap:.5rem}
+.sys-chip{font-size:.75rem;font-weight:600;padding:.25rem .65rem;border-radius:4px;border:1px solid #dce3ed;background:#f8f9fb;color:#333}
+.flow-legend{display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem;align-items:center}
+.legend-item{display:flex;align-items:center;gap:.35rem;font-size:.75rem;color:#555}
+
+/* FOOTER */
+footer{text-align:center;padding:1.5rem;font-size:.75rem;color:#888;border-top:1px solid #e0e5ed;margin-top:3rem;background:#fff}
+
+/* MODAL overrides */
+.modal-header{background:var(--sf-navy);color:#fff;border-radius:.375rem .375rem 0 0}
+.modal-header .btn-close{filter:invert(1)}
+.modal-title{font-weight:700;font-size:1rem}
+.agent-detail-row{display:flex;gap:.5rem;margin-bottom:.5rem;font-size:.875rem}
+.agent-detail-label{font-weight:600;color:var(--sf-navy);min-width:90px;flex-shrink:0}
+.agent-detail-val{color:#333;line-height:1.5}
+.hitl-badge{display:inline-block;background:#fff3cd;color:#856404;border:1px solid #ffecb5;border-radius:4px;font-size:.7rem;font-weight:700;padding:.15rem .4rem;margin-left:.4rem}
+.pov-badge{display:inline-block;background:#fff8c5;color:#7d5300;border:1px solid #f0c845;border-radius:4px;font-size:.7rem;font-weight:700;padding:.15rem .4rem;margin-left:.4rem}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="sf-header">
+  <div class="sf-header-inner">
+    <a class="sf-logo" href="#">
+      <span class="sf-logo-cloud">☁ Salesforce</span>
+      <span class="sf-logo-text">Enterprise Architecture</span>
+    </a>
+    <span class="sf-site-title d-none d-md-block">YPF Downstream — Agentforce Architecture</span>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="sf-nav">
+  <div class="sf-nav-inner">
+    <button class="sf-tab-btn active" data-tab="vision">Visión General</button>
+    <button class="sf-tab-btn" data-tab="desafios">Desafíos</button>
+    <button class="sf-tab-btn" data-tab="arquitectura">Arquitectura</button>
+    <button class="sf-tab-btn" data-tab="pasos">Próximos Pasos</button>
+    <button class="sf-tab-btn" data-tab="retailmedia">Flujo Retail Media</button>
+  </div>
+</nav>
+
+<!-- ============================================================ TAB 1 ============================================================ -->
+<div id="tab-vision" class="tab-panel active">
+  <div class="hero">
+    <h1>YPF Downstream — Inteligencia Agéntica</h1>
+    <p>De operaciones fragmentadas a una plataforma unificada de Agentforce + Data Cloud</p>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <span class="kpi-icon">⚡</span>
+        <div class="kpi-metric">Tiempo de Aprobación VP</div>
+        <div class="kpi-desc">Aprobaciones SAP con contexto completo en una sola pantalla — sin cadenas de email ni intercambios manuales</div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-icon">🔧</span>
+        <div class="kpi-metric">Eficiencia Field Service</div>
+        <div class="kpi-desc">3.000+ técnicos coordinados con scheduling inteligente y detección temprana de violaciones operativas</div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-icon">🎯</span>
+        <div class="kpi-metric">Engagement Retail Personalizado</div>
+        <div class="kpi-desc">Perfil unificado del cliente a través de nafta, tienda y BOXES — personalización en tiempo real vía WhatsApp y App</div>
+      </div>
+    </div>
+    <button class="hero-cta" onclick="switchTab('arquitectura')">Ver la Arquitectura →</button>
+  </div>
+</div>
+
+<!-- ============================================================ TAB 2 ============================================================ -->
+<div id="tab-desafios" class="tab-panel">
+  <div class="content-wrap">
+    <h2 class="section-title">Desafíos & Soluciones</h2>
+    <div class="challenges-grid">
+      <!-- LEFT: ACCORDION -->
+      <div>
+        <div class="challenge-label">⚠ Desafíos Identificados</div>
+        <div class="accordion" id="challengeAccordion">
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#c1">
+                <i class="bi bi-shop me-2" style="color:var(--warning)"></i>Retail sin inteligencia
+              </button>
+            </h2>
+            <div id="c1" class="accordion-collapse collapse show" data-bs-parent="#challengeAccordion">
+              <div class="accordion-body" style="font-size:.875rem;color:#555">
+                Sin vista unificada del cliente a través de nafta, tienda y BOXES. Cada canal opera en silos — imposible personalizar ni activar journeys coherentes.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c2">
+                <i class="bi bi-envelope-x me-2" style="color:var(--warning)"></i>Aprobaciones VP en email
+              </button>
+            </h2>
+            <div id="c2" class="accordion-collapse collapse" data-bs-parent="#challengeAccordion">
+              <div class="accordion-body" style="font-size:.875rem;color:#555">
+                Workflow de aprobaciones SAP atrapado en cadenas de email. Sin contexto enriquecido, múltiples intercambios manuales y riesgo SOX por falta de trazabilidad.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c3">
+                <i class="bi bi-tools me-2" style="color:var(--warning)"></i>Field Service reactivo
+              </button>
+            </h2>
+            <div id="c3" class="accordion-collapse collapse" data-bs-parent="#challengeAccordion">
+              <div class="accordion-body" style="font-size:.875rem;color:#555">
+                3.000+ técnicos coordinados manualmente, sin inteligencia predictiva. Las violaciones de reglas operativas se detectan tarde — con impacto en seguridad y costos.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c4">
+                <i class="bi bi-display me-2" style="color:var(--warning)"></i>Media Cloud inactivo
+              </button>
+            </h2>
+            <div id="c4" class="accordion-collapse collapse" data-bs-parent="#challengeAccordion">
+              <div class="accordion-body" style="font-size:.875rem;color:#555">
+                Media Cloud licenciado pero sin motor de automatización. Activación de campañas de sponsors y reporting de performance se gestionan manualmente.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- RIGHT: SOLUTIONS -->
+      <div>
+        <div class="solution-label">✓ Cómo Salesforce lo resuelve</div>
+        <div class="solutions-col">
+          <div class="solution-card">
+            <p><strong style="color:var(--sf-blue)">Data Cloud Unified Profile</strong><br>Data Cloud unifica loyalty, POS, BOXES y digital en un único perfil de cliente para personalización en tiempo real — base del Retail Engagement Agent.</p>
+          </div>
+          <div class="solution-card">
+            <p><strong style="color:var(--sf-blue)">VP Approval Agent (HITL)</strong><br>Centraliza todas las aprobaciones SAP con contexto enriquecido vía MCP — sin migrar workflows SOX. El humano decide, el agente prepara y registra.</p>
+          </div>
+          <div class="solution-card">
+            <p><strong style="color:var(--sf-blue)">FSM Refinery Agent</strong><br>Detecta violaciones de reglas en tiempo real (SCADA vía MuleSoft) y optimiza scheduling automáticamente con Tableau Next como superficie de visualización.</p>
+          </div>
+          <div class="solution-card">
+            <p><strong style="color:var(--sf-blue)">Retail Media Agent</strong><br>Automatiza la activación de campañas para sponsors, reporting de performance y planificación de medios — 100% out-of-box sobre la inversión ya existente.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ TAB 3 ============================================================ -->
+<div id="tab-arquitectura" class="tab-panel">
+  <div class="content-wrap">
+    <h2 class="section-title">Arquitectura de Referencia</h2>
+    <div class="arch-diagram">
+
+      <!-- LAYER 1: CHANNELS -->
+      <div class="arch-layer layer-channels">
+        <div class="layer-label"><i class="bi bi-broadcast me-1"></i>CAPA 1 — CANALES</div>
+        <div class="layer-boxes">
+          <div class="arch-box">📱 WhatsApp</div>
+          <div class="arch-box">📲 App Móvil</div>
+          <div class="arch-box">🌐 Portal Web Aprobaciones</div>
+          <div class="arch-box">🔧 FSM Mobile</div>
+          <div class="arch-box">📊 Tableau Next</div>
+          <div class="arch-box">🎙️ Voice for Employees</div>
+        </div>
+      </div>
+
+      <!-- LAYER 2: AGENT MESH -->
+      <div class="arch-layer layer-agents">
+        <div class="layer-label"><i class="bi bi-cpu me-1"></i>CAPA 2 — AGENT MESH</div>
+        <div class="layer-boxes">
+          <div class="arch-box agent-box" data-agent="retail-engagement">🛒 Retail Engagement Agent</div>
+          <div class="arch-box agent-box" data-agent="retail-media">📺 Retail Media Agent</div>
+          <div class="arch-box agent-box" data-agent="vp-approval">✅ VP Approval Agent <span style="font-size:.7rem">⚠️ HITL-SOX</span></div>
+          <div class="arch-box agent-box" data-agent="fsm-refinery">⚙️ FSM Refinery Agent</div>
+          <div class="arch-box agent-box" data-agent="d360">🟡 D360 Briefing Agent <span style="font-size:.7rem">PoV Live</span></div>
+        </div>
+      </div>
+
+      <!-- LAYER 3: TRUST -->
+      <div class="arch-layer layer-trust">
+        <div class="layer-label"><i class="bi bi-shield-check me-1"></i>CAPA 3 — TRUST LAYER</div>
+        <div class="layer-boxes">
+          <div class="trust-bar">🛡️ Einstein Trust Layer — PII Masking &nbsp;|&nbsp; Audit Logging (SOX) &nbsp;|&nbsp; Prompt Injection Protection &nbsp;|&nbsp; Ley 25.326</div>
+        </div>
+      </div>
+
+      <!-- LAYER 4: PLATFORM -->
+      <div class="arch-layer layer-platform">
+        <div class="layer-label"><i class="bi bi-cloud me-1"></i>CAPA 4 — PLATAFORMA SALESFORCE</div>
+        <div class="layer-boxes">
+          <div class="arch-box">🗄️ Data Cloud</div>
+          <div class="arch-box">📧 Marketing Cloud</div>
+          <div class="arch-box">📺 Media Cloud</div>
+          <div class="arch-box">🔩 FSM Unlimited</div>
+          <div class="arch-box">🔗 MuleSoft</div>
+        </div>
+      </div>
+
+      <!-- LAYER 5: EXTERNAL -->
+      <div class="arch-layer layer-external">
+        <div class="layer-label"><i class="bi bi-hdd-network me-1"></i>CAPA 5 — SISTEMAS EXTERNOS</div>
+        <div class="layer-boxes">
+          <div class="arch-box">🏭 SAP ERP via MCP</div>
+          <div class="arch-box">⚡ SCADA via MuleSoft Streaming</div>
+          <div class="arch-box">💳 POS / Loyalty</div>
+          <div class="arch-box">🤝 Sponsor Systems</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RISK CALLOUT -->
+    <div class="risk-callout">
+      <strong>⚠️ Riesgo Crítico de Datos:</strong> No existe hoy un identificador unificado del cliente retail a través de POS, loyalty y BOXES. La resolución de identidad en Data Cloud es el <strong>prerequisito #1</strong> antes de desplegar el Retail Engagement Agent.
+    </div>
+
+    <p style="font-size:.75rem;color:#888;margin-top:1rem;text-align:center">
+      <i class="bi bi-cursor me-1"></i>Haz clic en cualquier agente de la Capa 2 para ver detalles técnicos
+    </p>
+  </div>
+</div>
+
+<!-- ============================================================ TAB 4 ============================================================ -->
+<div id="tab-pasos" class="tab-panel">
+  <div class="content-wrap">
+    <h2 class="section-title">Próximos Pasos</h2>
+    <div class="timeline">
+
+      <div class="timeline-step">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <h5><span class="step-num">1</span>Semana 1–2: Alineación Técnica</h5>
+          <p>Validación de arquitectura con IT y arquitectos de YPF. Confirmación del MCP SAP pattern con Christian Mastroieni. Revisión de requisitos SOX para el VP Approval Agent.</p>
+        </div>
+      </div>
+
+      <div class="timeline-step">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <h5><span class="step-num">2</span>Semana 3–4: Workshop de Descubrimiento</h5>
+          <p>Sesión con Brian Sanchez / Guada Quintana. Mapeo de entidades de datos (loyalty, POS, BOXES). Definición de KPIs de éxito por agente y criterios de go/no-go del PoV.</p>
+        </div>
+      </div>
+
+      <div class="timeline-step">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <h5><span class="step-num">3</span>Mes 2: Proof of Value</h5>
+          <p>D360 Executive Briefing Agent en vivo sobre Voice for Employees. Demo funcional para CEO Marín en visita a refinería. BRQ en sandbox → validación con usuario final. <strong>Target: Junio 2026.</strong></p>
+        </div>
+      </div>
+
+      <div class="timeline-step">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <h5><span class="step-num">4</span>Mes 3: Propuesta de Inversión</h5>
+          <p>Con el PoV validado, construimos juntos el caso de negocio y la propuesta de arquitectura para Fases 2 y 3 — expansión al Retail Engagement Agent y FSM Refinery Agent.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="cta-section">
+      <button class="cta-btn"><i class="bi bi-calendar-check me-2"></i>Agendar Sesión de Alineación Técnica</button>
+      <div class="cta-sub">Arquitectura preparada por el equipo de Enterprise Architecture de Salesforce</div>
+      <div class="cta-close">"YPF ya tiene la inversión. Salesforce conecta los puntos."</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ TAB 5 ============================================================ -->
+<div id="tab-retailmedia" class="tab-panel">
+  <div class="content-wrap">
+    <h2 class="section-title">Flujo Retail Media E2E — Arquitectura Agéntica</h2>
+    <p style="font-size:.875rem;color:#555;margin-bottom:1.5rem">Basado en el flujo operativo actual de YPF. Cada paso manual identificado se convierte en una acción agéntica automatizada por Agentforce.</p>
+
+    <!-- LEGEND -->
+    <div class="flow-legend">
+      <span style="font-size:.75rem;font-weight:600;color:#888">Tipo de agente:</span>
+      <span class="legend-item"><span class="agent-pill auto">Autónomo</span> Ejecuta sin intervención humana</span>
+      <span class="legend-item"><span class="agent-pill hitl">HITL</span> Humano aprueba antes de actuar</span>
+      <span class="legend-item"><span class="agent-pill aug">Augment.</span> Asiste al operador humano</span>
+    </div>
+
+    <!-- FASE 1 -->
+    <div class="flow-phase">
+      <div class="flow-phase-title venta">📋 Fase 1 — Venta y Ejecución de Campaña</div>
+      <div class="flow-steps">
+
+        <div class="flow-step">
+          <div class="flow-step-num blue">1</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">Ejecutivo YPF vende campaña a sponsor (ej. Coca-Cola) en CRM</div>
+            <div class="flow-step-desc">El deal se registra en Sales Cloud / Media Cloud. Hoy: manual con datos de SAP y CSV. Con Agentforce: el agente pre-carga propuesta de mediaplan con inventory disponible de DOOH, segmentos de Data Cloud y benchmarks históricos de MCI.</div>
+            <div class="flow-step-tags">
+              <span class="tag tag-sf">Sales Cloud</span>
+              <span class="tag tag-sf">Media Cloud</span>
+              <span class="tag tag-ext">SAP (origen datos)</span>
+              <span class="tag tag-ext">CSV actual</span>
+              <span class="tag tag-agent">→ Retail Media Agent prepara mediaplan</span>
+            </div>
+          </div>
+          <span class="agent-pill aug">Augment.</span>
+        </div>
+
+        <div class="flow-connector">↓</div>
+
+        <div class="flow-step">
+          <div class="flow-step-num blue">2</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">Salesforce activa campaña en pantallas DOOH via Woxi (screen driver API)</div>
+            <div class="flow-step-desc">Una vez cerrado el deal, el Retail Media Agent dispara automáticamente la activación de creative en las pantallas de estaciones YPF via API de Woxi / Intouch LCD Driver — sin intervención manual del equipo de ad-ops.</div>
+            <div class="flow-step-tags">
+              <span class="tag tag-sf">Media Cloud</span>
+              <span class="tag tag-ext">Woxi API</span>
+              <span class="tag tag-ext">Intouch LCD Driver</span>
+              <span class="tag tag-warn">⚠ Integración MuleSoft requerida</span>
+            </div>
+          </div>
+          <span class="agent-pill auto">Autónomo</span>
+        </div>
+
+        <div class="flow-connector">↓</div>
+
+        <div class="flow-step">
+          <div class="flow-step-num blue">3</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">Salesforce genera tarea para el marketer</div>
+            <div class="flow-step-desc">Hoy: tarea manual asignada al marketer para que configure el segmento. Con Agentforce: el agente crea la tarea con contexto completo (brief de campaña, segmento sugerido basado en Data Cloud, canales recomendados) — el marketer solo aprueba.</div>
+            <div class="flow-step-tags">
+              <span class="tag tag-sf">Agentforce Tasks</span>
+              <span class="tag tag-sf">Data Cloud</span>
+            </div>
+          </div>
+          <span class="agent-pill hitl">HITL</span>
+        </div>
+
+        <div class="flow-connector">↓</div>
+
+        <div class="flow-step">
+          <div class="flow-step-num blue">4</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">Marketer crea segmento de audiencia y lo envía a social media</div>
+            <div class="flow-step-desc">Data Cloud construye el segmento unificado (loyalty + POS + BOXES + comportamiento digital). El Retail Media Agent lo publica directamente en Meta Ads y Google Ads Manager via conectores nativos de Marketing Cloud.</div>
+            <div class="flow-step-tags">
+              <span class="tag tag-sf">Data Cloud Segmentation</span>
+              <span class="tag tag-sf">Marketing Cloud</span>
+              <span class="tag tag-ext">Meta Ads</span>
+              <span class="tag tag-ext">Google Ads</span>
+              <span class="tag tag-ext">Google Display & Video</span>
+            </div>
+          </div>
+          <span class="agent-pill auto">Autónomo</span>
+        </div>
+
+        <div class="flow-connector">↓</div>
+
+        <div class="flow-step">
+          <div class="flow-step-num blue">5</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">Marketer crea journey y lo activa en todos los canales</div>
+            <div class="flow-step-desc">Marketing Cloud Journey Builder orquesta los canales: DOOH (Woxi), social (Meta/Google), email y App YPF. El agente sugiere la secuencia de journey óptima basada en el perfil del segmento — el marketer confirma y activa con un clic.</div>
+            <div class="flow-step-tags">
+              <span class="tag tag-sf">Journey Builder</span>
+              <span class="tag tag-sf">App YPF (push)</span>
+              <span class="tag tag-ext">Meta</span>
+              <span class="tag tag-ext">Google</span>
+              <span class="tag tag-ext">Email</span>
+              <span class="tag tag-ext">Woxi DOOH</span>
+            </div>
+          </div>
+          <span class="agent-pill hitl">HITL</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FASE 2 -->
+    <div class="flow-phase">
+      <div class="flow-phase-title medicion">📊 Fase 2 — Medición, Optimización y Cierre</div>
+      <div class="flow-steps">
+
+        <div class="flow-step">
+          <div class="flow-step-num green">6</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">MCI agrega performance de campaña de cada canal</div>
+            <div class="flow-step-desc">MCI (Marketing Cloud Intelligence) conecta los feeds de performance: Woxi/Intouch (DOOH), Meta, Google, Amazon S3 (data warehouse del sponsor), POS YPF. Unifica impresiones, clics, conversiones y ventas en un único dashboard.</div>
+            <div class="flow-step-tags">
+              <span class="tag tag-sf">Marketing Cloud Intelligence (MCI)</span>
+              <span class="tag tag-ext">Woxi / Intouch LCD</span>
+              <span class="tag tag-ext">Amazon S3</span>
+              <span class="tag tag-ext">Meta · Google · Email</span>
+              <span class="tag tag-ext">POS YPF</span>
+            </div>
+          </div>
+          <span class="agent-pill auto">Autónomo</span>
+        </div>
+
+        <div class="flow-connector">↓</div>
+
+        <div class="flow-step">
+          <div class="flow-step-num green">7</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">Marketer optimiza campaña en tiempo real</div>
+            <div class="flow-step-desc">El Retail Media Agent monitorea KPIs en MCI y genera recomendaciones de optimización proactivas: "CTR en Meta está 18% por debajo del benchmark — sugerencia: ajustar creatividad y ampliar segmento lookalike." El marketer acepta o rechaza cada acción.</div>
+            <div class="flow-step-tags">
+              <span class="tag tag-sf">MCI + Agentforce</span>
+              <span class="tag tag-agent">→ Retail Media Agent genera recomendaciones</span>
+            </div>
+          </div>
+          <span class="agent-pill hitl">HITL</span>
+        </div>
+
+        <div class="flow-connector">↓</div>
+
+        <div class="flow-step">
+          <div class="flow-step-num green">8</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">Ejecutivo YPF envía reporte de performance al sponsor (Coca-Cola)</div>
+            <div class="flow-step-desc">Hoy: el ejecutivo genera reportes manualmente. Con Agentforce: el agente produce automáticamente un reporte de performance multi-canal (impresiones DOOH + social + conversiones POS), lo formatea con la marca del sponsor y lo envía vía Media Cloud portal o email.</div>
+            <div class="flow-step-tags">
+              <span class="tag tag-sf">Media Cloud — Sponsor Portal</span>
+              <span class="tag tag-sf">MCI Reports</span>
+              <span class="tag tag-agent">→ Retail Media Agent genera y envía reporte</span>
+            </div>
+          </div>
+          <span class="agent-pill auto">Autónomo</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SISTEMAS EXTERNOS -->
+    <div class="systems-bar">
+      <div class="systems-bar-title"><i class="bi bi-hdd-network me-1"></i>Ecosistema de sistemas integrados en este flujo</div>
+      <div class="systems-row">
+        <span class="sys-chip">☁ Sales Cloud</span>
+        <span class="sys-chip">📺 Media Cloud</span>
+        <span class="sys-chip">📧 Marketing Cloud</span>
+        <span class="sys-chip">🧠 Marketing Cloud Intelligence (MCI)</span>
+        <span class="sys-chip">🗄️ Data Cloud</span>
+        <span class="sys-chip">🖥️ Woxi (DOOH API)</span>
+        <span class="sys-chip">🖥️ Intouch LCD Driver</span>
+        <span class="sys-chip">🏭 SAP ERP</span>
+        <span class="sys-chip">∞ Meta Ads</span>
+        <span class="sys-chip">G Google Ads / DV360</span>
+        <span class="sys-chip">📦 Amazon S3</span>
+        <span class="sys-chip">📲 App YPF</span>
+        <span class="sys-chip">💳 POS / Loyalty</span>
+        <span class="sys-chip">🔗 MuleSoft (integración)</span>
+      </div>
+    </div>
+
+    <!-- CALLOUT -->
+    <div class="risk-callout" style="margin-top:1.25rem">
+      <strong>🤖 El diferencial agéntico:</strong> El flujo actual requiere 5+ handoffs manuales entre ejecutivo, marketer y ad-ops. Con Agentforce, los pasos 2, 4, 6 y 8 se automatizan completamente — el humano solo interviene en las decisiones creativas y de aprobación comercial (pasos 3, 5, 7).
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  Generado por Salesforce Enterprise Architecture · Junio 2026 · <strong>Confidencial</strong>
+</footer>
+
+<!-- ============================================================ MODAL ============================================================ -->
+<div class="modal fade" id="agentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="agentModalTitle">Agente</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="agentModalBody"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ---- AGENT DATA ----
+const agents = {
+  'retail-engagement': {
+    title: '🛒 Retail Engagement Agent',
+    rows: [
+      ['Tipo', 'Autónomo B2C'],
+      ['Topics', 'Loyalty, personalización BOXES, alertas de recarga'],
+      ['Grounding', 'Data Cloud — unified customer profile (POS + Loyalty + BOXES + Digital)'],
+      ['Canal', 'WhatsApp + App Móvil'],
+      ['Dependencia crítica', '⚠️ Requiere resolución de identidad en Data Cloud como prerequisito #1'],
+    ]
+  },
+  'retail-media': {
+    title: '📺 Retail Media Agent',
+    rows: [
+      ['Tipo', 'Autónomo B2B'],
+      ['Topics', 'Onboarding sponsors, activación de campañas, reporting de performance, planificación de medios'],
+      ['Grounding', 'Media Cloud + Data Cloud'],
+      ['Canal', 'Portal Web'],
+      ['Nota', '100% out-of-box sobre licencia existente de Media Cloud'],
+    ]
+  },
+  'vp-approval': {
+    title: '✅ VP Approval Agent',
+    badge: 'hitl',
+    rows: [
+      ['Tipo', 'Human-in-the-Loop (HITL)'],
+      ['Gate SOX', '100% decisiones humanas — el agente prepara contexto, el VP decide y firma'],
+      ['Grounding', 'SAP ERP via MCP (Model Context Protocol)'],
+      ['Canal', 'Portal Web Aprobaciones + Slack + Mobile'],
+      ['Trazabilidad', 'Audit Logging completo en Einstein Trust Layer (SOX-compliant)'],
+    ]
+  },
+  'fsm-refinery': {
+    title: '⚙️ FSM Refinery Agent',
+    rows: [
+      ['Tipo', 'Augmentation'],
+      ['Topics', 'Scheduling inteligente, detección de violaciones de reglas, mantenimiento predictivo'],
+      ['Grounding', 'SCADA via MuleSoft Streaming + Data Cloud'],
+      ['Canal', 'FSM Mobile + Tableau Next'],
+      ['Alcance', '3.000+ técnicos de campo en refinerías downstream'],
+    ]
+  },
+  'd360': {
+    title: '🟡 D360 Briefing Agent',
+    badge: 'pov',
+    rows: [
+      ['Tipo', 'Augmentation'],
+      ['Status', '🟡 PoV en progreso — BRQ en sandbox, target Junio 2026'],
+      ['Grounding', 'Agentforce Data Library + D360 Notebook IA'],
+      ['Canal', 'Voice for Employees'],
+      ['Demo target', 'CEO Marín — visita a refinería, Junio 2026'],
+    ]
+  }
+};
+
+// ---- MODAL LOGIC ----
+const agentModal = new bootstrap.Modal(document.getElementById('agentModal'));
+
+document.querySelectorAll('.agent-box').forEach(box => {
+  box.addEventListener('click', () => {
+    const key = box.dataset.agent;
+    const data = agents[key];
+    if (!data) return;
+    document.getElementById('agentModalTitle').innerHTML =
+      data.title +
+      (data.badge === 'hitl' ? '<span class="hitl-badge ms-2">⚠️ HITL-SOX</span>' : '') +
+      (data.badge === 'pov' ? '<span class="pov-badge ms-2">🟡 PoV Live</span>' : '');
+    document.getElementById('agentModalBody').innerHTML =
+      data.rows.map(([label, val]) =>
+        `<div class="agent-detail-row"><span class="agent-detail-label">${label}</span><span class="agent-detail-val">${val}</span></div>`
+      ).join('');
+    agentModal.show();
+  });
+});
+
+// ---- TAB SWITCHING ----
+function switchTab(tabId) {
+  document.querySelectorAll('.sf-tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tabId);
+  });
+  document.querySelectorAll('.tab-panel').forEach(panel => {
+    panel.classList.remove('active');
+  });
+  const target = document.getElementById('tab-' + tabId);
+  if (target) {
+    target.classList.add('active');
+    if (tabId === 'pasos') triggerTimeline();
+    window.scrollTo(0, 0);
+  }
+}
+
+document.querySelectorAll('.sf-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+// ---- TIMELINE REVEAL ----
+function triggerTimeline() {
+  const steps = document.querySelectorAll('.timeline-step');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.15 });
+  steps.forEach((step, i) => {
+    setTimeout(() => observer.observe(step), i * 80);
+  });
+}
+</script>
+</body>
+</html>
