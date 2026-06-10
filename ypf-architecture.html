@@ -144,6 +144,40 @@ body{font-family:'Inter',sans-serif;background:var(--light-gray);color:#1a1a1a;f
 .flow-legend{display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem;align-items:center}
 .legend-item{display:flex;align-items:center;gap:.35rem;font-size:.75rem;color:#555}
 
+/* TAB 6 — MCP LAYER */
+.mcp-intro{background:#fff;border-radius:10px;border:1px solid #dce3ed;padding:1.25rem 1.5rem;margin-bottom:1.75rem;display:flex;gap:1rem;align-items:flex-start}
+.mcp-intro-icon{font-size:2rem;flex-shrink:0}
+.mcp-intro-text p{font-size:.875rem;color:#444;line-height:1.6;margin:0}
+.mcp-intro-text strong{color:var(--sf-navy)}
+.mcp-legend{display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem;align-items:center}
+.mcp-badge{font-size:.7rem;font-weight:700;padding:.2rem .55rem;border-radius:10px;white-space:nowrap}
+.mcp-badge.active{background:#e8f5ee;color:var(--success);border:1px solid #a8d5b8}
+.mcp-badge.proposed{background:#fff4ee;color:var(--warning);border:1px solid #f0c497}
+.mcp-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.25rem;margin-bottom:2rem}
+.mcp-card{background:#fff;border-radius:10px;border:1px solid #dce3ed;padding:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:.75rem}
+.mcp-card.active{border-left:4px solid var(--success)}
+.mcp-card.proposed{border-left:4px solid var(--warning)}
+.mcp-card-header{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.mcp-card-title{font-weight:700;font-size:.95rem;color:var(--sf-navy)}
+.mcp-card-source{font-size:.75rem;color:#666;margin-top:.1rem}
+.mcp-card-tools{background:#f4f6f9;border-radius:6px;padding:.65rem .9rem}
+.mcp-card-tools-label{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:.4rem}
+.mcp-tool-chip{display:inline-block;font-size:.72rem;font-family:monospace;background:#e8f3fb;color:var(--sf-blue);border:1px solid #c0dcf2;border-radius:4px;padding:.1rem .4rem;margin:.15rem .15rem 0 0}
+.mcp-agents{display:flex;flex-wrap:wrap;gap:.35rem}
+.mcp-agent-tag{font-size:.72rem;font-weight:600;padding:.15rem .45rem;border-radius:3px;background:#e8f5ee;color:var(--success);border:1px solid #a8d5b8}
+.mcp-benefit{font-size:.8rem;color:#555;line-height:1.5;padding-top:.25rem;border-top:1px solid #f0f0f0}
+.mcp-benefit strong{color:var(--sf-navy)}
+.mcp-summary{background:#fff;border-radius:10px;border:1px solid #dce3ed;overflow:hidden;margin-bottom:1.5rem}
+.mcp-summary-title{background:var(--sf-navy);color:#fff;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.6rem 1rem}
+.mcp-summary table{width:100%;border-collapse:collapse;font-size:.82rem}
+.mcp-summary th{background:#f4f6f9;color:var(--sf-navy);font-weight:700;padding:.6rem 1rem;text-align:left;border-bottom:1px solid #dce3ed}
+.mcp-summary td{padding:.6rem 1rem;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+.mcp-summary tr:last-child td{border-bottom:none}
+.mcp-summary tr:hover td{background:#f9fbfd}
+.mcp-callout{background:linear-gradient(135deg,#032D60,#1B4F8A);border-radius:10px;padding:1.5rem;color:#fff;margin-top:1.5rem}
+.mcp-callout h5{font-size:1rem;font-weight:700;margin-bottom:.5rem}
+.mcp-callout p{font-size:.85rem;opacity:.85;line-height:1.6;margin:0}
+
 /* FOOTER */
 footer{text-align:center;padding:1.5rem;font-size:.75rem;color:#888;border-top:1px solid #e0e5ed;margin-top:3rem;background:#fff}
 
@@ -179,6 +213,7 @@ footer{text-align:center;padding:1.5rem;font-size:.75rem;color:#888;border-top:1
     <button class="sf-tab-btn" data-tab="arquitectura">Arquitectura</button>
     <button class="sf-tab-btn" data-tab="pasos">Próximos Pasos</button>
     <button class="sf-tab-btn" data-tab="retailmedia">Flujo Retail Media</button>
+    <button class="sf-tab-btn" data-tab="mcp">MCP Layer</button>
   </div>
 </nav>
 
@@ -604,6 +639,227 @@ footer{text-align:center;padding:1.5rem;font-size:.75rem;color:#888;border-top:1
     <!-- CALLOUT -->
     <div class="risk-callout" style="margin-top:1.25rem">
       <strong>🤖 El diferencial agéntico:</strong> El flujo actual requiere 5+ handoffs manuales entre ejecutivo, marketer y ad-ops. Con Agentforce, los pasos 2, 4, 6 y 8 se automatizan completamente — el humano solo interviene en las decisiones creativas y de aprobación comercial (pasos 3, 5, 7).
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ TAB 6 ============================================================ -->
+<div id="tab-mcp" class="tab-panel">
+  <div class="content-wrap">
+    <h2 class="section-title">MCP Layer — Oportunidades de Mejora</h2>
+
+    <div class="mcp-intro">
+      <div class="mcp-intro-icon">🔌</div>
+      <div class="mcp-intro-text">
+        <p><strong>Model Context Protocol (MCP)</strong> permite a los agentes de Agentforce conectarse a sistemas externos como herramientas nativas — con contexto enriquecido, sin integraciones custom y con trazabilidad completa en el Einstein Trust Layer. Hoy YPF usa MCP solo en un punto (SAP → VP Approval Agent). Hay <strong>5 oportunidades adicionales</strong> de alto valor.</p>
+      </div>
+    </div>
+
+    <div class="mcp-legend">
+      <span style="font-size:.75rem;font-weight:600;color:#888">Estado:</span>
+      <span class="legend-item"><span class="mcp-badge active">● Activo</span> Ya implementado</span>
+      <span class="legend-item"><span class="mcp-badge proposed">● Propuesto</span> Oportunidad de mejora</span>
+    </div>
+
+    <div class="mcp-cards">
+
+      <!-- CARD 1: SAP (ACTIVO) -->
+      <div class="mcp-card active">
+        <div class="mcp-card-header">
+          <div>
+            <div class="mcp-card-title">🏭 SAP ERP MCP Server</div>
+            <div class="mcp-card-source">Fuente: SAP ERP via MCP (Christian Mastroieni pattern)</div>
+          </div>
+          <span class="mcp-badge active">● Activo</span>
+        </div>
+        <div class="mcp-card-tools">
+          <div class="mcp-card-tools-label">Tools expuestas</div>
+          <span class="mcp-tool-chip">get_purchase_order</span>
+          <span class="mcp-tool-chip">get_approval_context</span>
+          <span class="mcp-tool-chip">get_budget_status</span>
+          <span class="mcp-tool-chip">submit_approval</span>
+        </div>
+        <div>
+          <div class="mcp-card-tools-label" style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:.4rem">Agentes consumidores</div>
+          <div class="mcp-agents"><span class="mcp-agent-tag">✅ VP Approval Agent</span></div>
+        </div>
+        <div class="mcp-benefit"><strong>Impacto:</strong> Aprobaciones SAP con contexto completo en una pantalla — sin cadenas de email. Audit trail SOX-compliant en Einstein Trust Layer.</div>
+      </div>
+
+      <!-- CARD 2: SCADA (PROPUESTO) -->
+      <div class="mcp-card proposed">
+        <div class="mcp-card-header">
+          <div>
+            <div class="mcp-card-title">⚡ SCADA MCP Server</div>
+            <div class="mcp-card-source">Fuente: SCADA Refinería (hoy via MuleSoft Streaming)</div>
+          </div>
+          <span class="mcp-badge proposed">● Propuesto</span>
+        </div>
+        <div class="mcp-card-tools">
+          <div class="mcp-card-tools-label">Tools propuestas</div>
+          <span class="mcp-tool-chip">get_sensor_readings</span>
+          <span class="mcp-tool-chip">get_active_alarms</span>
+          <span class="mcp-tool-chip">get_operational_violations</span>
+          <span class="mcp-tool-chip">get_equipment_status</span>
+        </div>
+        <div>
+          <div class="mcp-card-tools-label" style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:.4rem">Agentes consumidores</div>
+          <div class="mcp-agents"><span class="mcp-agent-tag">⚙️ FSM Refinery Agent</span></div>
+        </div>
+        <div class="mcp-benefit"><strong>Impacto:</strong> Detección de violaciones operativas en tiempo real sin pasar por MuleSoft — menor latencia, crítico para seguridad en refinería.</div>
+      </div>
+
+      <!-- CARD 3: POS/LOYALTY (PROPUESTO) -->
+      <div class="mcp-card proposed">
+        <div class="mcp-card-header">
+          <div>
+            <div class="mcp-card-title">💳 POS / Loyalty MCP Server</div>
+            <div class="mcp-card-source">Fuente: POS YPF + Programa de Loyalty + BOXES</div>
+          </div>
+          <span class="mcp-badge proposed">● Propuesto</span>
+        </div>
+        <div class="mcp-card-tools">
+          <div class="mcp-card-tools-label">Tools propuestas</div>
+          <span class="mcp-tool-chip">get_customer_points</span>
+          <span class="mcp-tool-chip">get_transaction_history</span>
+          <span class="mcp-tool-chip">get_boxes_balance</span>
+          <span class="mcp-tool-chip">redeem_points</span>
+        </div>
+        <div>
+          <div class="mcp-card-tools-label" style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:.4rem">Agentes consumidores</div>
+          <div class="mcp-agents"><span class="mcp-agent-tag">🛒 Retail Engagement Agent</span></div>
+        </div>
+        <div class="mcp-benefit"><strong>Impacto:</strong> Contexto transacional en tiempo real en WhatsApp y App — sin depender del ciclo batch de Data Cloud. Personalización inmediata.</div>
+      </div>
+
+      <!-- CARD 4: DATA CLOUD (PROPUESTO) -->
+      <div class="mcp-card proposed">
+        <div class="mcp-card-header">
+          <div>
+            <div class="mcp-card-title">🗄️ Data Cloud MCP Server</div>
+            <div class="mcp-card-source">Fuente: Data Cloud — Unified Profile + Segmentos</div>
+          </div>
+          <span class="mcp-badge proposed">● Propuesto</span>
+        </div>
+        <div class="mcp-card-tools">
+          <div class="mcp-card-tools-label">Tools propuestas</div>
+          <span class="mcp-tool-chip">get_unified_profile</span>
+          <span class="mcp-tool-chip">get_segment_membership</span>
+          <span class="mcp-tool-chip">get_propensity_score</span>
+          <span class="mcp-tool-chip">get_ai_insights</span>
+        </div>
+        <div>
+          <div class="mcp-card-tools-label" style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:.4rem">Agentes consumidores</div>
+          <div class="mcp-agents">
+            <span class="mcp-agent-tag">🛒 Retail Engagement Agent</span>
+            <span class="mcp-agent-tag">📺 Retail Media Agent</span>
+            <span class="mcp-agent-tag">⚙️ FSM Refinery Agent</span>
+          </div>
+        </div>
+        <div class="mcp-benefit"><strong>Impacto:</strong> Interface única y estandarizada para todos los agentes — cualquier nuevo agente accede al perfil unificado sin integración custom.</div>
+      </div>
+
+      <!-- CARD 5: MCI (PROPUESTO) -->
+      <div class="mcp-card proposed">
+        <div class="mcp-card-header">
+          <div>
+            <div class="mcp-card-title">📊 MCI MCP Server</div>
+            <div class="mcp-card-source">Fuente: Marketing Cloud Intelligence (MCI)</div>
+          </div>
+          <span class="mcp-badge proposed">● Propuesto</span>
+        </div>
+        <div class="mcp-card-tools">
+          <div class="mcp-card-tools-label">Tools propuestas</div>
+          <span class="mcp-tool-chip">get_campaign_kpis</span>
+          <span class="mcp-tool-chip">get_channel_benchmark</span>
+          <span class="mcp-tool-chip">flag_underperforming</span>
+          <span class="mcp-tool-chip">get_optimization_recs</span>
+        </div>
+        <div>
+          <div class="mcp-card-tools-label" style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:.4rem">Agentes consumidores</div>
+          <div class="mcp-agents"><span class="mcp-agent-tag">📺 Retail Media Agent</span></div>
+        </div>
+        <div class="mcp-benefit"><strong>Impacto:</strong> El agente no solo reporta — detecta anomalías en KPIs y genera recomendaciones de optimización accionables con contexto histórico.</div>
+      </div>
+
+      <!-- CARD 6: WOXI (PROPUESTO) -->
+      <div class="mcp-card proposed">
+        <div class="mcp-card-header">
+          <div>
+            <div class="mcp-card-title">🖥️ Woxi DOOH MCP Server</div>
+            <div class="mcp-card-source">Fuente: Woxi API + Intouch LCD Driver (hoy ⚠️ sin integrar)</div>
+          </div>
+          <span class="mcp-badge proposed">● Propuesto</span>
+        </div>
+        <div class="mcp-card-tools">
+          <div class="mcp-card-tools-label">Tools propuestas</div>
+          <span class="mcp-tool-chip">get_screen_inventory</span>
+          <span class="mcp-tool-chip">activate_creative</span>
+          <span class="mcp-tool-chip">check_delivery_status</span>
+          <span class="mcp-tool-chip">pause_campaign</span>
+        </div>
+        <div>
+          <div class="mcp-card-tools-label" style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:.4rem">Agentes consumidores</div>
+          <div class="mcp-agents"><span class="mcp-agent-tag">📺 Retail Media Agent</span></div>
+        </div>
+        <div class="mcp-benefit"><strong>Impacto:</strong> Elimina la dependencia de MuleSoft para activación DOOH — el agente activa creatividades en pantallas de estaciones YPF directamente.</div>
+      </div>
+
+    </div>
+
+    <!-- SUMMARY TABLE -->
+    <div class="mcp-summary">
+      <div class="mcp-summary-title">Resumen — MCP por agente</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Agente</th>
+            <th>MCP Activo</th>
+            <th>MCP Propuesto</th>
+            <th>Complejidad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>✅ VP Approval Agent</td>
+            <td><span class="mcp-badge active">SAP ERP</span></td>
+            <td>—</td>
+            <td>Ya listo</td>
+          </tr>
+          <tr>
+            <td>⚙️ FSM Refinery Agent</td>
+            <td>—</td>
+            <td><span class="mcp-badge proposed">SCADA</span> <span class="mcp-badge proposed">Data Cloud</span></td>
+            <td>Alta — requiere MCP adapter sobre SCADA</td>
+          </tr>
+          <tr>
+            <td>🛒 Retail Engagement Agent</td>
+            <td>—</td>
+            <td><span class="mcp-badge proposed">POS/Loyalty</span> <span class="mcp-badge proposed">Data Cloud</span></td>
+            <td>Media — APIs disponibles, resolver identidad primero</td>
+          </tr>
+          <tr>
+            <td>📺 Retail Media Agent</td>
+            <td>—</td>
+            <td><span class="mcp-badge proposed">MCI</span> <span class="mcp-badge proposed">Woxi DOOH</span> <span class="mcp-badge proposed">Data Cloud</span></td>
+            <td>Baja-Media — APIs documentadas, MuleSoft como fallback</td>
+          </tr>
+          <tr>
+            <td>🟡 D360 Briefing Agent</td>
+            <td>—</td>
+            <td><span class="mcp-badge proposed">D360 Notebook IA</span></td>
+            <td>Baja — ya en PoV, grounding extensión natural</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mcp-callout">
+      <h5>🚀 Roadmap MCP recomendado</h5>
+      <p><strong>Fase 1 (PoV):</strong> Extender SAP MCP pattern al D360 Briefing Agent — reutiliza infraestructura existente, costo marginal bajo.<br>
+      <strong>Fase 2:</strong> MCI MCP Server + Woxi DOOH MCP para Retail Media Agent — elimina el pendiente de MuleSoft DOOH y habilita optimización proactiva de campañas.<br>
+      <strong>Fase 3:</strong> Data Cloud como MCP Server universal + POS/Loyalty live para Retail Engagement Agent — prerequisito: resolución de identidad completada.</p>
     </div>
 
   </div>
